@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>记一次公众号网页不可用 | Yan1`s Blog</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.1/styles/solarized-light.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
+    <link rel="stylesheet" href="/custom.css"/>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icon512.png">
+    <meta name="theme-color" content="#ffffff"/>
+    
+  <meta name="generator" content="Hexo 5.2.0"></head>
+  <body>
+    <script>
+      if ('serviceWorker' in navigator && false) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js', {scope: '/'})
+            .then(function (registration) {
+              // console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(function (err) {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+    </script>
+  <div id="page-container">
+    <nav class="navbar nav-shadow" role="navigation" aria-label="main navigation">
+  <div class="container">
+      <div class="navbar-brand">
+          <a class="navbar-item" href="/">
+              <img src="/icon192.png" height="50">
+          </a>
+          <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
+             data-target="mainNavbar">
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+          </a>
+      </div>
+      <div id="mainNavbar" class="navbar-menu">
+          <div class="navbar-start">
+              <a class="navbar-item" href="/"> Home </a>
+              <a class="navbar-item" href="/archives"> Archives </a>
+          </div>
+      </div>
+  </div>
+</nav>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+  if ($navbarBurgers.length > 0) {
+    $navbarBurgers.forEach( el => {
+      el.addEventListener('click', () => {
+        const target = el.dataset.target;
+        const $target = document.getElementById(target);
+        el.classList.toggle('is-active');
+        $target.classList.toggle('is-active');
+      });
+    });
+  }
+});
+</script>
+    <div id="content-wrap">
+        <div class="container">
+          <div class="article-container">
+  <h1 class="title is-3 is-4-mobile">记一次公众号网页不可用</h1>
+  <article>
+      <div class="contents">
+        
+      </div>
+      <p>普通的早上，沉寂近两年的群，突然发来一条消息。</p>
+<blockquote>
+<p>X: @AA在吗？</p>
+</blockquote>
+<p>群里AA没有回复消息。</p>
+<p>过了半小时，群里多了两条新消息。</p>
+<blockquote>
+<p>X: 谁能联系下CC</p>
+<p>X: 有急事</p>
+</blockquote>
+<p>依旧没有人回消息。可能AA、CC他们都在忙吧。或者，没有在群里回复，直接私聊联系。毕竟急事，大部分也是私事。</p>
+<p>有什么事，能让X这么着急呢？</p>
+<p>两年前，X找CC开发公众号网页的项目。</p>
+<p>CC找了AA来做技术负责人，实现项目的开发。我作为一名打工人，参与了项目。</p>
+<p>今天，X在项目的技术群发消息找人。我想，会不会是公众号的网页出了问题呢。</p>
+<p>去试试看，就知道。</p>
+<p>打开微信，找到X的公众号，点击公众号底部菜单，页面开始跳转，页面空白，绿色的进度条在顶部向右快速前进。等了一会，提示加载失败。</p>
+<p>果然，公众号网页挂了。</p>
+<p>为什么网页突然会无法访问呢。这个网页已经正常运行近两年。为何今天突然就坚持不住了呢。其实中间有没有问题，我不清楚。群里上一次消息的记录，还是两年前。就当它正常运行两年，没问题。</p>
+<p>随手将微信里空白的网页下拉，查看隐藏的网站域名信息。用手机备忘录记录下来。</p>
+<p>会不会是https证书过期了呢。毕竟免费的ssl证书只有一年期限。到期后，要手动去申请新的证书，进行更换。其他项目都遇到过ssl过期的问题。</p>
+<p>验证下自己的想法。</p>
+<p>在微信收藏里，找到记录的ssl检测工具网站。访问网站，检测刚刚记录在备忘录的域名。检测结果提示：DNS解析失败。第一反应，公众号不强制要求https，小程序才要求https。记得项目上线那会，也没有配置ssl证书。</p>
+<p>DNS解析失败？排查下域名解析。用手机操作，没电脑方便。电脑上直接ping一下域名，就知道是不是解析不到这个域名。手机的话，只能借助在线网站ping。试了一下，果然解析失败，看不到域名背后的ip地址。</p>
+<p>好好的域名，怎么会解析失败？</p>
+<p>莫非？难道？</p>
+<p>没有这个域名？！！！</p>
+<p>不可能。</p>
+<p>打开在线网站，查询域名的Whois信息。Whois信息还是正常的，明年才到期。</p>
+<p>服务器不至于到期，是CC的服务器。</p>
+<p>剩下一种可能。解析记录丢失了。</p>
+<p>域名不是AA的域名。一般域名持有者是公司，由对应的负责人持有。刚好那个人已经不在原来的公司。可能他整理域名的时候，顺便把某些他认为不需要的解析记录删除了把。误删了。因为他没参与过这个公众号项目，他误认为这些域名解析没有用处，也不是没有可能。</p>
+<p>至此。大致上了解了整个过程。域名持有者H没有参与过这个项目，由AA技术拿来使用，添加了解析记录给项目用。两年过去了。H去了别的公司，某一天，整理阿里云的域名，顺手就把无用的域名解析给删除了。</p>
+<p>一直到晚上，群里也没有回复消息。应该是私下处理了。</p>
+<p>只是我一直记挂着，域名无法解析到服务器，如何确认那台服务器是否是正常呢。虽然之前访问过那台服务器，但是时间久了。电脑上访问的记录，很难找回来。</p>
+<blockquote>
+<p>这件事让我获得一个经验。</p>
+</blockquote>
+<p>我应该准备一个Excel，把经手过的域名和对应的服务器信息，记录下来。如果后面需要，可以第一时间查阅。</p>
+<p>这个Excel，是这样：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>域名</th>
+<th>服务器IP</th>
+<th>服务器账号信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A项目</td>
+<td><a target="_blank" rel="noopener" href="http://admin.a.com/">http://admin.a.com</a></td>
+<td>112.18.19.20</td>
+<td>root/39s*jf&amp;1b</td>
+</tr>
+</tbody></table>
+
+      <p class="copyright"><strong>Links: <a href="http://yan1.cc/2020/11/16/%E5%85%AC%E4%BC%97%E5%8F%B7%E6%8C%82%E4%BA%86/">http://yan1.cc/2020/11/16/%E5%85%AC%E4%BC%97%E5%8F%B7%E6%8C%82%E4%BA%86/</a></strong></p>
+  </article>
+  <div id="comment">
+    
+    <div id="disqus_thread"></div>
+    <script>
+      var disqus_config = function() {
+        this.page.url = "http://yan1.cc/2020/11/16/%E5%85%AC%E4%BC%97%E5%8F%B7%E6%8C%82%E4%BA%86/"; // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "ckhkll7ky0000lt6vei91h5qg"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      };
+  
+      (function() {
+        var d = document,
+          s = d.createElement("script");
+        s.src = "https://iometa.disqus.com/embed.js";
+        s.setAttribute("data-timestamp", +new Date());
+        (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    
+</div>
+</div>
+        </div>
+    </div>
+    
+<footer id="footer">
+    <div class="content has-text-centered">
+        <p>
+            © 2020 <a href="http://yan1.cc">Yan1</a>.
+            Powered by <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>.
+            Theme <a target="_blank" rel="noopener" href="https://github.com/songquanpeng/hexo-theme-lightx">lightx</a>.
+            
+        </p>
+    </div>
+</footer>
+  </div>
+  
+    <script id="dsq-count-scr" src="//iometa.disqus.com/count.js" async></script>
+  
+  
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@latest/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+  </script>
+  </body>
+</html>
