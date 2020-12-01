@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>第三方接口封装sdk的套路 | Yan1`s Blog</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.1.1/styles/solarized-light.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
+    <link rel="stylesheet" href="/custom.css"/>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icon512.png">
+    <meta name="theme-color" content="#ffffff"/>
+    
+  <meta name="generator" content="Hexo 5.2.0"></head>
+  <body>
+    <script>
+      if ('serviceWorker' in navigator && false) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js', {scope: '/'})
+            .then(function (registration) {
+              // console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(function (err) {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+    </script>
+  <div id="page-container">
+    <nav class="navbar nav-shadow" role="navigation" aria-label="main navigation">
+  <div class="container">
+      <div class="navbar-brand">
+          <a class="navbar-item" href="/">
+              <img src="/icon192.png" height="50">
+          </a>
+          <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
+             data-target="mainNavbar">
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+          </a>
+      </div>
+      <div id="mainNavbar" class="navbar-menu">
+          <div class="navbar-start">
+              <a class="navbar-item" href="/"> Home </a>
+              <a class="navbar-item" href="/archives"> Archives </a>
+              <a class="navbar-item" href="/about"> About </a>
+          </div>
+      </div>
+  </div>
+</nav>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+  if ($navbarBurgers.length > 0) {
+    $navbarBurgers.forEach( el => {
+      el.addEventListener('click', () => {
+        const target = el.dataset.target;
+        const $target = document.getElementById(target);
+        el.classList.toggle('is-active');
+        $target.classList.toggle('is-active');
+      });
+    });
+  }
+});
+</script>
+    <div id="content-wrap">
+        <div class="container">
+          <div class="article-container">
+  <h1 class="title is-3 is-4-mobile">第三方接口封装sdk的套路</h1>
+  <article>
+      <p>整理对接第三方接口的代码，发现这个模块的代码结构很简单。</p>
+<p>主要是两层结构：</p>
+<pre><code>外部调用层（BusinessService) --&gt; 实现调用层(HttpService)</code></pre>
+<p>如果封装更多一点功能，也可作为三层结构：</p>
+<pre><code>外部调用层（BusinessService) --&gt; 内部转换层(Service) --&gt; 实现调用层(HttpService)</code></pre>
+<p>两层的结构下，大致的代码和分包是这样的：</p>
+<p>service包，负责实现调用第三方接口</p>
+<pre><code>Service1.java
+
+    public void req1(Req1 req) &#123;
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity&lt;Req1&gt; request = new HttpEntity&lt;&gt;(req, commonHeader());
+        ResponseEntity&lt;Resp1&gt; response = restTemplate.postForEntity(url, request, Resp1.class);
+
+        return response.getBody();
+    &#125;</code></pre>
+<p>model包，存放第三方接口的请求实体类，响应实体类</p>
+<pre><code>Req1.java
+Resp1.java</code></pre>
+<p>怎么使用</p>
+<pre><code>public void test() &#123;
+    resp = service1.req1(req);
+&#125;</code></pre>
+<p><b>为什么要将第三方接口的调用，封装成sdk呢？</b></p>
+<p>有些第三方接口提供通用的公共功能，比如发送短信功能，常常多个项目都会用到，而且接口的参数不会经常发生变化。这时，可以考虑将这类接口的调用实现封装成sdk，提供给项目使用。</p>
+<p><b>如何将上面的service和model封装成sdk，提供给外部调用。</b></p>
+<p>1.首先将上面示例的 service和model 代码封装到sdk项目<br>2.根据业务的需要，处理好入参和出参。<br>3.如果业务逻辑复杂，考虑除了上面service（调用请求的功能，暂且称为http的service）外，再向上提供一层业务层service。外部调用业务service而不直接调用http的service。示例：</p>
+<p>service包，提供业务调用的service</p>
+<pre><code>BusinessService1.java （业务用的BusinessService)
+
+BusinessService1 &#123;
+
+    private Service1 service1;
+
+    public void busiOne(BusinessEntity1 entity1) &#123;
+        service1.req1(convertToReq1(entity1));
+        service1.req2();
+        service1.req3();
+    &#125;
+
+&#125;</code></pre>
+<p>http包</p>
+<pre><code>Service1.java (调用第三方接口的HttpService，这个代码文章开头已给出)</code></pre>
+<p>对应入参则可能需要业务相关的实体类，需要做调整，添加业务相关的实体类</p>
+<p>model包调整为domain包和msg包。其中，domain包，提供业务用的实体类</p>
+<pre><code>BusinessEntity1.java
+BusinessEntity2.java</code></pre>
+<p>msg包，提供第三方接口的请求实体类，响应实体类</p>
+<pre><code>Req1.java
+Resp1.java</code></pre>
+<p>4.调用第三方接口的url，以及一些固定的入参，一般会和环境强相关。测试环境，生产环境，提供的参数会不同，因此做成配置参数，写在yml中</p>
+<pre><code>* yml配置参数
+* 单独的ConfigProperty配置类加载参数
+* 对应的Service中使用对应的配置类</code></pre>
+<p>5.优化异常处理，作为sdk，做好自身该做的事。</p>
+
+      <p class="copyright"><strong>Links: <a href="http://yan1.cc/2020/12/01/%E7%AC%AC%E4%B8%89%E6%96%B9%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85sdk/">http://yan1.cc/2020/12/01/%E7%AC%AC%E4%B8%89%E6%96%B9%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85sdk/</a></strong></p>
+  </article>
+  <div id="comment">
+    
+    <div id="disqus_thread"></div>
+    <script>
+      var disqus_config = function() {
+        this.page.url = "http://yan1.cc/2020/12/01/%E7%AC%AC%E4%B8%89%E6%96%B9%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85sdk/"; // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = "cki68gvo700014t4lgzumcxsq"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      };
+  
+      (function() {
+        var d = document,
+          s = d.createElement("script");
+        s.src = "https://yanyii-github-io.disqus.com/embed.js";
+        s.setAttribute("data-timestamp", +new Date());
+        (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    
+</div>
+</div>
+        </div>
+    </div>
+    
+<footer id="footer">
+    <div class="content has-text-centered">
+        <p>
+            © 2020 <a href="http://yan1.cc">Yan1</a>.
+            Powered by <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>.
+            Theme <a target="_blank" rel="noopener" href="https://github.com/songquanpeng/hexo-theme-lightx">lightx</a>.
+            
+        </p>
+    </div>
+</footer>
+  </div>
+  
+    <script id="dsq-count-scr" src="//yanyii-github-io.disqus.com/count.js" async></script>
+  
+  
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@latest/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+  </script>
+  </body>
+</html>
